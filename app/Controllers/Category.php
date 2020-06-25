@@ -40,43 +40,60 @@ class Category extends BaseController
 	 * @return view
 	*/
 	public function create(){
+		// init session 
+		$session = \Config\Services::session();
 		$category =  new CategoriesModel();
-		$data['categories'] = $category->categoriesTrees(0);
+		$categories = $category->categoriesTrees();
+		$data["categories"]= $this->createOptions($categories);
 		echo view('templates/header', $data);
 		echo view('categories/create');
 		return view('templates/footer');
 	}
+	
+	/**
+	 *  return options as html for view by recursive 
+	 *
+	 *
+	 * @return view
+	*/
+	public function createOptions($arrayCetogries, $prefix=''){
+		$option = '';
+		foreach ($arrayCetogries as $key => $category) {
+			$option .= "<option value='$category->id'> $prefix $category->title</option>";
+			$option .= $this->createOptions($category->child,  $prefix.'-');
+		}
+		return $option;
+	}
 
+	/**
+	 *  Create new category Model
+	 *
+	 *
+	 * @return view
+	*/
 	public function store(){
-		$session = \Config\Services::session();
-        helper('form');
+		// include form helper for validation
+		helper('form');
+		// check if is post request and the validations 
         if(isset($_POST) && $this->validate([
-            'body' => 'required',
-            'title' => 'required|max_length[255]|min_length[5]'
-        ])){
+			'title' => 'required|max_length[255]|min_length[5]',
+			'parent_id' => 'required|greater_than[0]'
+        ])){// validation is true
 			$title =  $this->request->getVar('title');
-			$slug =  url_title($title, '-', true);
-			$model = new PostsModel();
-			if(!empty($model->get($slug)["title"])){
-				// $session->setFlashdata('error', 'Found Same Title In DB');
-				// echo view('templates/header');
-			    // echo view('posts/create');
-				// echo view('templates/footer');
-				// return false;
-				return redirect()->back()->withInput()->with('error', 'Found Same Title In DB');
+			$parent_id =  $this->request->getVar('parent_id');
+			$model = new CategoriesModel();
+			// check if there is an cat with the same category
+			if(!empty($model->findCategoryByTitle($title)["title"])){
+				return redirect()->back()->withInput()->with('error', 'Found  category with same title in DB');
 			}
             $model->save([
-                'title' => $this->request->getVar('title'), 
-                'body' => $this->request->getVar('body'),
-                'slug' => url_title($this->request->getVar('title'), '-', true)
+                'title' => $title, 
+                'parent_id' => $parent_id,
 			]);
-			return redirect()->route('show_post',
-			  [ url_title($this->request->getVar('title'), '-', true)])
-			  ->with('success_post', 'Post Created Success');
+			return redirect()->route('/',)
+			  ->with('success_post', 'Category Created Success');
         }else{
-			echo view('templates/header');
-			echo view('posts/create');
-			echo view('templates/footer');
+			$this->create();
         }
     }
 	

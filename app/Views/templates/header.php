@@ -21,7 +21,7 @@
                 </ul>
                 <ul class="navbar-nav">
                     <li> 
-                        <a href="/posts/create" class="btn btn-outline-primary">Create Category</a>
+                        <a href="/category/create" class="btn btn-outline-primary">Create Category</a>
                     </li>
                 </ul>
             </div>

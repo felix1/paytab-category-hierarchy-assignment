@@ -33,6 +33,7 @@ $routes->setAutoRoute(true);
 $routes->get('/', 'Category::index');
 $routes->get('categories/(:num)', 'Category::getSubCategories/$1');
 $routes->get('category/create', 'Category::create');
+$routes->post('category/store', 'Category::store');
 
 /**
  * --------------------------------------------------------------------

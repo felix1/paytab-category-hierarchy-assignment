@@ -23,6 +23,13 @@ class CategoriesModel extends Model{
     protected $table = 'categories_hierarchy';
     
     /**
+	 * An array of field names that are allowed
+	 * to be set by the user in inserts/updates.
+	 *
+	 * @var array
+	 */
+    protected $allowedFields = ['title', 'parent_id'];
+    /**
 	 *  return Categories for this level.
 	 *
 	 * @param integer $level
@@ -61,5 +68,19 @@ class CategoriesModel extends Model{
         return $category;
     }
 
+     /**
+	 *  return category with this title
+	 *
+	 * @param integer $title
+	 *
+	 * @return array
+	 */
+    public function findCategoryByTitle($title = false){
+        if(!$title)
+            return null;
+        
+        return $this->where(['title' => $title])->first();
+
+    }
     
 }
